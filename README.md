@@ -40,9 +40,9 @@ import 'echarts-gl';
 引入依赖
 
 ```shell
-npm install stats-js # 显示帧率
 npm install three@latest
 npm install -D @types/three
+npm install stats-js # 显示帧率
 
 npm install three-fbx-loader # 用于加载 fbx 模型
 ```
