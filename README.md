@@ -40,16 +40,25 @@ import 'echarts-gl';
 ```shell
 npm install three@latest
 npm install -D @types/three
-npm install stats-js # 显示帧率
 
-npm install three-fbx-loader # 用于加载 fbx 模型
+npm install stats-js # 显示帧率
 ```
 
-### 目前主流 3D 模型格式
+### 3D 模型格式
 * fbx
 * obj
 *  glb(gltf)
 * vrm
+
+**threejs 支持的 3D 格式**
+
+> [参考](https://github.com/mrdoob/three.js/tree/dev/examples/jsm/loaders)，基本上主流的 3D 模型格式都支持
+
+```typescript
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js' // 无需再次安装依赖，three-js 自带 fbx 格式模型
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js' // 无需再次安装依赖，three-js 自带
+// ...
+```
 
 ### 看起来挺有意思的项目
 

@@ -10,5 +10,5 @@ export default defineConfig({
       '@': join(__dirname, 'src')
     }
   },
-  assetsInclude: ['**/*.hdr', '**/*.fbx']
+  assetsInclude: ['**/*.hdr', '**/*.fbx', '**/*.glb']
 })

@@ -10,11 +10,19 @@ import eChart3DHDR from '@/assets/echart/pisa.hdr'
 // three-js
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js' // 控制鼠标
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader' // 导入 fbx 格式模型
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js' // 无需再次安装依赖，three-js 自带 fbx 格式模型
 import Stats from 'three/examples/jsm/libs/stats.module' // 显示帧率
 import xBot from '@/assets/3js/xbot.fbx'
 import naruto from '@/assets/3js/Naruto.fbx'
 import beats from '@/assets/3js/beats_highpoly.fbx'
+// 加载 gltf 模型
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js' // 无需再次安装依赖，three-js 自带
+import people from '@/assets/3js/people.glb'
+import {Vector3} from "three";
+import {GLTF} from "three/examples/jsm/loaders/GLTFLoader";
+import sceneBg from '@/assets/3js/bg-a4d6a7cc.jpeg'
+import {Material} from "three/src/materials/Material";
+import {SRGBColorSpace} from "three/src/constants";
 
 function App() {
   
@@ -76,6 +84,120 @@ function App() {
   }
   
   const ThreejsComp = () => {
+    
+    // TODO: add a button to change render model for man and women
+    const gltfPeople = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+        const scene = new THREE.Scene()
+        scene.add(new THREE.AxesHelper(150))
+
+        const light = new THREE.PointLight(0xffffff, 50)
+        light.position.set(0, 180, 0)
+        scene.add(light)
+
+        const ambientLight = new THREE.AmbientLight()
+        scene.add(ambientLight)
+
+        const hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+        scene.add( hemilight );
+
+        // 创建摄像头
+        const camera = new THREE.PerspectiveCamera(
+          65, // 默认 50
+          window.innerWidth / window.innerHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
+          0.1,
+          1000
+        )
+        camera.position.set(20, 0, -250) // 红、绿、蓝
+
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(threejs3D.clientWidth, threejs3D.clientHeight)
+        // renderer.setClearColor(0xff0000, 0); // 设置渲染器的背景颜色，参数1：颜色，参数2：透明度，为 0 表示透明背景
+        renderer.setClearAlpha(0) // 设置背景透明度，为 0 表示透明背景
+        renderer.outputColorSpace = THREE.SRGBColorSpace
+        threejs3D.appendChild(renderer.domElement)
+
+        // 鼠标角度控制器
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.target.set(0, 1, 0)
+        
+        let meshWomen: null | THREE.Mesh = null
+        let meshMan: null | THREE.Mesh = null
+        let meshCircle: null | THREE.Mesh = null
+        
+        const loader = new GLTFLoader()
+        loader.load(people, (gltf: GLTF) => {
+          console.log(gltf)
+          // 根据 name 获取模型，以单独设置材质
+          meshWomen = gltf.scene.getObjectByName('女');
+          meshMan = gltf.scene.getObjectByName('男');
+          meshCircle = gltf.scene.getObjectByName('底部小圆');
+          // 遍历加载的场景中的每个模型
+          // gltf.scene.traverse(function (child) {
+          //   if ((child as THREE.Mesh).isMesh) {
+          //     // 重新设置材质，为模型组中的所有模型统一设置材质
+          //     child.material = new THREE.MeshLambertMaterial({
+          //       color:0x000f50,
+          //       wireframe: true,
+          //       transparent: false
+          //     });
+          //   }
+          // })
+          // 为某些模型单独设置材质
+          // 重新设置材质
+          if (meshWomen && meshMan) {
+            meshWomen.material = new THREE.MeshLambertMaterial({
+              color: 0x000f50,
+              wireframe: true,
+            });
+            // 重新设置材质
+            meshMan.material = new THREE.MeshLambertMaterial({
+              color: 0x00ff50,
+              wireframe: true,
+            });
+            
+            if (meshCircle) {
+              scene.add( meshMan )
+              scene.add( meshCircle )
+            }
+          }
+          
+        }, undefined, err => {
+          console.log('Error: ', err)
+        })
+
+        const render = () => {
+          renderer.render(scene, camera)
+        }
+
+        const onWindowResize = () => {
+          camera.aspect = window.innerWidth / window.innerHeight,
+            camera.updateProjectionMatrix()
+          renderer.setSize(threejs3D.clientWidth, threejs3D.clientHeight)
+          render()
+        }
+        window.addEventListener('resize', onWindowResize, false)
+
+        // 帧率显示
+        const stats = new Stats()
+        threejs3D.appendChild(stats.dom)
+        stats.dom.style.position = 'absolute'
+
+        const animate = () => {
+          requestAnimationFrame(animate)
+
+          // 底部小圆旋转动画，加的数值越大旋转越快
+          if (meshCircle) meshCircle.rotation.y += 0.1
+          
+          controls.update()
+          stats.update()
+          render()
+        }
+        animate()
+      }
+    }
     
     const draw3jsBeatsModel = () => {
       const threejs3D = document.getElementById('threejs3DDom')
@@ -437,8 +559,13 @@ function App() {
     }
 
     return (
-      <div style={{display: 'flex', flexDirection: 'column', height: '95%', margin: '20px', backgroundColor: '#333'}}>
-        <h1>threejs-3d <span onClick={draw3jsBeatsModel}>beats-click</span> <span onClick={draw3jsRobotModel}>robot-click</span> <span onClick={draw3jsNaruto}>naruto-click</span></h1>
+      <div style={{display: 'flex', flexDirection: 'column', height: '95%', margin: '10px', backgroundColor: '#333'}}>
+        <h1>threejs&nbsp;
+          <span onClick={draw3jsBeatsModel}>beats-click</span> &nbsp;
+          <span onClick={draw3jsRobotModel}>robot-click</span> &nbsp;
+          <span onClick={draw3jsNaruto}>naruto-click</span>&nbsp;
+          <span onClick={gltfPeople}>people-click</span>&nbsp;
+        </h1>
         <div id={'threejs3DDom'} style={{flex: 1, height: '90%', width: '95%'}}></div>
       </div>
     )
@@ -449,7 +576,7 @@ function App() {
       <div style={{flex: 1, backgroundColor: "forestgreen", height: '100%'}}>
         <EChart3DGlobeComp />
       </div>
-      <div style={{flex: 1, height: '100%'}}>
+      <div style={{flex: 1, height: '100%', position: 'relative'}}>
         <ThreejsComp />
       </div>
     </div>
