@@ -33,8 +33,6 @@ import 'echarts-gl';
 ```
 
 
-
-
 ## three-js
 
 引入依赖
@@ -46,3 +44,24 @@ npm install stats-js # 显示帧率
 
 npm install three-fbx-loader # 用于加载 fbx 模型
 ```
+
+### 目前主流 3D 模型格式
+* fbx
+* obj
+*  glb(gltf)
+* vrm
+
+### 看起来挺有意思的项目
+
+> [threejs 实现俄罗斯方块](https://github.com/RylanBot/threejs-tetris-react/tree/main)
+
+
+## 参考
+
+**threejs 上手**
+* https://threejs.org/docs/index.html#manual/en/introduction
+* https://juejin.cn/post/6844904177345232903
+
+**fbx 模型加载**
+* https://sbcode.net/threejs/loaders-fbx/
+* https://juejin.cn/post/6911217131254185991

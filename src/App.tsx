@@ -77,7 +77,7 @@ function App() {
   
   const ThreejsComp = () => {
     
-    const draw3js3D = () => {
+    const draw3jsBeatsModel = () => {
       const threejs3D = document.getElementById('threejs3DDom')
       if (threejs3D) {
         // 创建场景
@@ -87,7 +87,6 @@ function App() {
         scene.add(new THREE.AxesHelper(5))
         
         // 创建灯光
-        // naruto 不需要灯光。。。
         const light = new THREE.PointLight(0xffffff, 50)
         light.position.set(0.8, 1.4, 1.0)
         scene.add(light)
@@ -139,7 +138,7 @@ function App() {
             model.translateY(0.6)
 
             // 调整模型（放大缩小某一个坐标）
-            model.scale.set(.028, 0.028, .028)
+            model.scale.set(.02, 0.02, .02)
             scene.add(model)
             console.log('model added')
           },
@@ -180,15 +179,270 @@ function App() {
         animate()
       }
     }
+
+    const draw3jsRobotModel = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+        // 创建场景
+        const scene = new THREE.Scene()
+        // scene.background = new THREE.Color(0xf65144); // 设置场景背景颜色
+        // 添加辅助坐标系
+        scene.add(new THREE.AxesHelper(5))
+
+        // 创建灯光
+        const light = new THREE.PointLight(0xffffff, 50)
+        light.position.set(0.8, 1.4, 1.0)
+        scene.add(light)
+
+        // 环境光
+        const ambientLight = new THREE.AmbientLight()
+        scene.add(ambientLight)
+
+        // 创建摄像头
+        const camera = new THREE.PerspectiveCamera(
+          65, // 默认 50
+          window.innerWidth / window.innerHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
+          0.1,
+          1000
+        )
+        camera.position.set(0.5, 0.7, 1.8) // 红、绿、蓝
+
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(threejs3D.clientWidth, threejs3D.clientHeight)
+        // renderer.setClearColor(0xff0000, 0); // 设置渲染器的背景颜色，参数1：颜色，参数2：透明度，为 0 表示透明背景
+        renderer.setClearAlpha(0) // 设置背景透明度，为 0 表示透明背景
+        threejs3D.appendChild(renderer.domElement)
+
+        // 鼠标角度控制器
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.target.set(0, 1, 0)
+
+        // 创建 FBXLoader 对象
+        const fbxLoader = new FBXLoader()
+
+        // 加载模型
+        fbxLoader.load(
+          xBot,
+          (model) => {
+            // model.traverse(function (child) {
+            //   if ((child as THREE.Mesh).isMesh) {
+            //     // (child as THREE.Mesh).material = material
+            //     if ((child as THREE.Mesh).material) {
+            //       ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).transparent = false
+            //     }
+            //   }
+            // })
+
+            // 调整模型在坐标轴中的位置
+            // model.position.set(0, 0.4, 0)
+
+            // 调整模型（放大缩小某一个坐标）
+            model.scale.set(.01, 0.01, .01)
+            scene.add(model)
+            console.log('model added')
+          },
+          (xhr) => {
+            console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+          },
+          (error) => {
+            console.log(error)
+          }
+        )
+
+        const render = () => {
+          renderer.render(scene, camera)
+        }
+
+        const onWindowResize = () => {
+          camera.aspect = window.innerWidth / window.innerHeight,
+            camera.updateProjectionMatrix()
+          renderer.setSize(threejs3D.clientWidth, threejs3D.clientHeight)
+          render()
+        }
+        window.addEventListener('resize', onWindowResize, false)
+
+        // 帧率显示
+        const stats = new Stats()
+        threejs3D.appendChild(stats.dom)
+        stats.dom.style.position = 'absolute'
+
+        const animate = () => {
+          requestAnimationFrame(animate)
+
+          controls.update()
+
+          render()
+
+          stats.update()
+        }
+        animate()
+      }
+    }
     
+    const draw3jsNaruto = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+        // 创建场景
+        const scene = new THREE.Scene()
+        // scene.background = new THREE.Color(0xf65144); // 设置场景背景颜色
+        // 添加辅助坐标系
+        scene.add(new THREE.AxesHelper(5))
+
+        // 创建灯光
+        // naruto 不需要灯光。。。
+        // const light = new THREE.PointLight(0xffffff, 50)
+        // light.position.set(0.8, 1.4, 1.0)
+        // scene.add(light)
+
+        // 环境光
+        const ambientLight = new THREE.AmbientLight()
+        scene.add(ambientLight)
+
+        // 创建摄像头
+        const camera = new THREE.PerspectiveCamera(
+          65, // 默认 50
+          window.innerWidth / window.innerHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
+          0.1,
+          1000
+        )
+        camera.position.set(0.5, 0.7, 1.8) // 红、绿、蓝
+
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(threejs3D.clientWidth, threejs3D.clientHeight)
+        // renderer.setClearColor(0xff0000, 0); // 设置渲染器的背景颜色，参数1：颜色，参数2：透明度，为 0 表示透明背景
+        renderer.setClearAlpha(0) // 设置背景透明度，为 0 表示透明背景
+        threejs3D.appendChild(renderer.domElement)
+
+        // 鼠标角度控制器
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.target.set(0, 1, 0)
+
+        // 创建 FBXLoader 对象
+        const fbxLoader = new FBXLoader()
+
+        // 加载模型
+        fbxLoader.load(
+          naruto,
+          (model) => {
+            // model.traverse(function (child) {
+            //   if ((child as THREE.Mesh).isMesh) {
+            //     // (child as THREE.Mesh).material = material
+            //     if ((child as THREE.Mesh).material) {
+            //       ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).transparent = false
+            //     }
+            //   }
+            // })
+
+            // 调整模型在坐标轴中的位置
+            // model.position.set(0, 0.4, 0)
+            
+            model.translateY(1)
+
+            // 调整模型（放大缩小某一个坐标）
+            model.scale.set(.01, 0.01, .01)
+            scene.add(model)
+            console.log('model added')
+          },
+          (xhr) => {
+            console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+          },
+          (error) => {
+            console.log(error)
+          }
+        )
+
+        const render = () => {
+          renderer.render(scene, camera)
+        }
+
+        const onWindowResize = () => {
+          camera.aspect = window.innerWidth / window.innerHeight,
+            camera.updateProjectionMatrix()
+          renderer.setSize(threejs3D.clientWidth, threejs3D.clientHeight)
+          render()
+        }
+        window.addEventListener('resize', onWindowResize, false)
+
+        // 帧率显示
+        const stats = new Stats()
+        threejs3D.appendChild(stats.dom)
+        stats.dom.style.position = 'absolute'
+
+        const animate = () => {
+          requestAnimationFrame(animate)
+
+          controls.update()
+
+          render()
+
+          stats.update()
+        }
+        animate()
+      }
+    }
+
+    // 简单的 three-js 上手
+    const simple3js = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+
+        // 创建场景
+        const scene = new THREE.Scene();
+        // 设置相机位置
+        const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        // 创建 WebGL 渲染器
+        const renderer = new THREE.WebGLRenderer();
+        // 设置渲染范围
+        renderer.setSize( threejs3D.clientWidth, threejs3D.clientHeight );
+
+        threejs3D.appendChild( renderer.domElement );
+
+        // 创建三维几何体、设置大小
+        const geometry = new THREE.BoxGeometry( 2, 2, 2 );
+        // 设置几何体材质、颜色
+        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        const cube = new THREE.Mesh( geometry, material );
+        scene.add( cube );
+
+        camera.position.z = 5;
+
+        // 开始渲染
+        renderer.render( scene, camera );
+
+        // 鼠标控制相机
+        const mouseCtl = () => {
+          // 创建鼠标控制器
+          const controls = new OrbitControls(camera, threejs3D)
+          controls.addEventListener('change', () => {
+            // on change 事件发生的时候重新渲染
+            renderer.render( scene, camera );
+          })
+        }
+        mouseCtl()
+
+        // 渲染动画/周期渲染
+        const animate = () => {
+          // 自动刷新动画
+          requestAnimationFrame( animate );
+
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+
+          renderer.render( scene, camera );
+        }
+        animate();
+      }
+    }
+
     return (
       <div style={{display: 'flex', flexDirection: 'column', height: '95%', margin: '20px', backgroundColor: '#333'}}>
-        <h1 onClick={draw3js3D}>threejs-3d-click-me</h1>
+        <h1>threejs-3d <span onClick={draw3jsBeatsModel}>beats-click</span> <span onClick={draw3jsRobotModel}>robot-click</span> <span onClick={draw3jsNaruto}>naruto-click</span></h1>
         <div id={'threejs3DDom'} style={{flex: 1, height: '90%', width: '95%'}}></div>
       </div>
     )
   }
-  
   
   return (
     <div style={{display: 'flex', height: '100vh', width: '100%', cursor: 'pointer'}}>
