@@ -10,7 +10,7 @@ import eChart3DHDR from '@/assets/echart/pisa.hdr'
 // three-js
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js' // 控制鼠标
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js' // 无需再次安装依赖，three-js 自带 fbx 格式模型
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js' // 无需再次安装依赖，three-js 自带 FBXLoader 扩展
 import Stats from 'three/examples/jsm/libs/stats.module' // 显示帧率
 import xBot from '@/assets/3js/xbot.fbx'
 import naruto from '@/assets/3js/Naruto.fbx'
@@ -85,7 +85,6 @@ function App() {
   
   const ThreejsComp = () => {
     
-    // TODO: add a button to change render model for man and women
     const gltfPeople = () => {
       const threejs3D = document.getElementById('threejs3DDom')
       if (threejs3D) {
@@ -93,7 +92,7 @@ function App() {
         scene.add(new THREE.AxesHelper(150))
 
         const light = new THREE.PointLight(0xffffff, 50)
-        light.position.set(0, 180, 0)
+        light.position.set(0, 200, 0)
         scene.add(light)
 
         const ambientLight = new THREE.AmbientLight()
@@ -105,7 +104,7 @@ function App() {
         // 创建摄像头
         const camera = new THREE.PerspectiveCamera(
           65, // 默认 50
-          window.innerWidth / window.innerHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
+          threejs3D.clientWidth / threejs3D.clientHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
           0.1,
           1000
         )
@@ -126,11 +125,18 @@ function App() {
         let meshWomen: null | THREE.Mesh = null
         let meshMan: null | THREE.Mesh = null
         let meshCircle: null | THREE.Mesh = null
-        
+
+        const textureLoader = new THREE.TextureLoader()
+        const texture = textureLoader.load(down2up)
+        // 调整纹理的环绕方式
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+          
         const loader = new GLTFLoader()
         loader.load(people, (gltf: GLTF) => {
           console.log(gltf)
-          // 根据 name 获取模型，以单独设置材质
+          // people 这个模型是一个模型组，其中包含三个对象：男，女，底部小圆。
+          // 可以根据 name 取出其中的模型，并对每一个模型单独设置材质，
+          // 根据 name 获取模型，单独设置材质、纹理、位置等属性
           meshWomen = gltf.scene.getObjectByName('女');
           meshMan = gltf.scene.getObjectByName('男');
           meshCircle = gltf.scene.getObjectByName('底部小圆');
@@ -148,19 +154,24 @@ function App() {
           // 为某些模型单独设置材质
           // 重新设置材质
           if (meshWomen && meshMan) {
-            meshWomen.material = new THREE.MeshLambertMaterial({
-              color: 0x000f50,
-              wireframe: true,
+            meshWomen.position.set(0, 0, -75)
+            meshWomen.material = new THREE.MeshStandardMaterial({
+              map: texture
             });
             // 重新设置材质
-            meshMan.material = new THREE.MeshLambertMaterial({
-              color: 0x00ff50,
+            meshMan.material = new THREE.MeshStandardMaterial({
+              //color: 0x568ee1,
+              //emissive: 0x568ee5,
+              //emissiveIntensity: 1,
               wireframe: true,
+              map: texture
             });
             
             if (meshCircle) {
-              scene.add( meshMan )
-              scene.add( meshCircle )
+              // scene 有一个 remove 方法，可以只加载单个男或者女模型，再绑定 onclick 事件切换模型
+              scene.add(meshWomen)
+              scene.add(meshMan)
+              scene.add(meshCircle)
             }
           }
           
@@ -173,7 +184,7 @@ function App() {
         }
 
         const onWindowResize = () => {
-          camera.aspect = window.innerWidth / window.innerHeight,
+          camera.aspect = threejs3D.clientWidth / threejs3D.clientHeight,
             camera.updateProjectionMatrix()
           renderer.setSize(threejs3D.clientWidth, threejs3D.clientHeight)
           render()
@@ -189,7 +200,17 @@ function App() {
           requestAnimationFrame(animate)
 
           // 底部小圆旋转动画，加的数值越大旋转越快
-          if (meshCircle) meshCircle.rotation.y += 0.1
+          if (meshCircle) {
+              meshCircle.rotation.y += 0.02
+          }
+          
+          if (texture) {
+            if (texture.offset.y < 1) {
+                texture.offset.y += 0.01
+            } else {
+              texture.offset.y = 0
+            }
+          }
           
           controls.update()
           stats.update()
@@ -220,7 +241,7 @@ function App() {
         // 创建摄像头
         const camera = new THREE.PerspectiveCamera(
           65, // 默认 50
-          window.innerWidth / window.innerHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
+          threejs3D.clientWidth / threejs3D.clientHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
           0.1,
           1000
         )
@@ -323,7 +344,7 @@ function App() {
         // 创建摄像头
         const camera = new THREE.PerspectiveCamera(
           65, // 默认 50
-          window.innerWidth / window.innerHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
+          threejs3D.clientWidth / threejs3D.clientHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
           0.1,
           1000
         )
@@ -424,7 +445,7 @@ function App() {
         // 创建摄像头
         const camera = new THREE.PerspectiveCamera(
           65, // 默认 50
-          window.innerWidth / window.innerHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
+          threejs3D.clientWidth / threejs3D.clientHeight, // 默认值为 1，数值不等于 1 的话模型会变形，小于 1 被压缩，大于 1 被拉长
           0.1,
           1000
         )
@@ -755,12 +776,11 @@ function App() {
         // 创建场景
         const scene = new THREE.Scene();
         // 设置相机位置
-        const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        const camera = new THREE.PerspectiveCamera( 75, threejs3D.clientWidth / threejs3D.clientHeight, 0.1, 1000 );
         // 创建 WebGL 渲染器
         const renderer = new THREE.WebGLRenderer();
         // 设置渲染范围
         renderer.setSize( threejs3D.clientWidth, threejs3D.clientHeight );
-
         threejs3D.appendChild( renderer.domElement );
 
         // 创建三维几何体、设置大小
