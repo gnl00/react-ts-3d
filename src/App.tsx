@@ -16,13 +16,13 @@ import xBot from '@/assets/3js/xbot.fbx'
 import naruto from '@/assets/3js/Naruto.fbx'
 import beats from '@/assets/3js/beats_highpoly.fbx'
 // 加载 gltf 模型
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js' // 无需再次安装依赖，three-js 自带
-import people from '@/assets/3js/people.glb'
-import {Vector3} from "three";
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js' // 无需再次安装依赖，three-js 自带 GLTFLoader 扩展
 import {GLTF} from "three/examples/jsm/loaders/GLTFLoader";
-import sceneBg from '@/assets/3js/bg-a4d6a7cc.jpeg'
-import {Material} from "three/src/materials/Material";
-import {SRGBColorSpace} from "three/src/constants";
+import people from '@/assets/3js/people.glb'
+import opengl from '@/assets/3js/uv_grid_opengl.jpg'
+
+import down2up from '@/assets/3js/down2up-be71451b.png'
+import left2right from '@/assets/3js/left2right-ec543fab.png'
 
 function App() {
   
@@ -505,6 +505,248 @@ function App() {
       }
     }
 
+    // 圆柱体贴图 + 贴图动画
+    const simple3jsCylinderTexture = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+
+        // 创建场景
+        const scene = new THREE.Scene();
+        // 设置相机位置
+        const camera = new THREE.PerspectiveCamera( 65, threejs3D.clientWidth / threejs3D.clientHeight, 0.1, 1000 );
+        camera.position.z = 20;
+        // 创建 WebGL 渲染器
+        const renderer = new THREE.WebGLRenderer();
+        // 设置渲染范围
+        renderer.setSize( threejs3D.clientWidth, threejs3D.clientHeight );
+        threejs3D.appendChild( renderer.domElement );
+
+        // 创建纹理贴图
+        const textureLoader = new THREE.TextureLoader()
+        const texture = textureLoader.load(opengl)
+        // wrapS 定义纹理贴图在水平方向上如何包裹
+        // wrapT 定义纹理贴图在垂直方向上如何包裹
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+        texture.colorSpace = THREE.SRGBColorSpace
+
+        // 创建三维几何体、设置大小
+        const geometry = new THREE.CylinderGeometry(5, 5, 24);
+        // 创建材质，并设置贴图
+        const material = new THREE.MeshBasicMaterial({
+          map: texture
+        });
+        const cube = new THREE.Mesh( geometry, material );
+        scene.add( cube );
+
+        // 鼠标控制相机
+        const mouseCtl = () => {
+          // 创建鼠标控制器
+          const controls = new OrbitControls(camera, threejs3D)
+          controls.addEventListener('change', () => {
+            // on change 事件发生的时候重新渲染
+            renderer.render( scene, camera );
+          })
+        }
+        mouseCtl()
+
+        let repeatY = 0;
+        // 渲染动画/周期渲染
+        const animate = () => {
+          // 自动刷新动画
+          requestAnimationFrame( animate );
+          if (texture.offset.y < 1) {
+            texture.offset.y -= 0.01
+          } else {
+            texture.offset.y = 0
+          }
+          
+          // if (repeatY < 0.8) {
+          //   texture.repeat.set(repeatY += 0.01, repeatY += 0.01)
+          // } else {
+          //   repeatY = 0
+          // }
+          renderer.render( scene, camera );
+        }
+        animate();
+      }
+    }
+    
+    // 球形贴图
+    const simple3jsSphereTexture = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+
+        // 创建场景
+        const scene = new THREE.Scene();
+        // 设置相机位置
+        const camera = new THREE.PerspectiveCamera( 65, threejs3D.clientWidth / threejs3D.clientHeight, 0.1, 1000 );
+        camera.position.z = 20;
+        // 创建 WebGL 渲染器
+        const renderer = new THREE.WebGLRenderer();
+        // 设置渲染范围
+        renderer.setSize( threejs3D.clientWidth, threejs3D.clientHeight );
+        threejs3D.appendChild( renderer.domElement );
+
+        // 创建纹理贴图
+        const textureLoader = new THREE.TextureLoader()
+        const texture = textureLoader.load(opengl)
+        // wrapS 定义纹理贴图在水平方向上如何包裹
+        // wrapT 定义纹理贴图在垂直方向上如何包裹
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+        texture.colorSpace = THREE.SRGBColorSpace
+
+        // 创建三维几何体、设置大小
+        const geometry = new THREE.SphereGeometry(10, 32, 16);
+        // 创建材质，并设置贴图
+        const material = new THREE.MeshBasicMaterial({
+          map: texture
+        });
+        const cube = new THREE.Mesh( geometry, material );
+        scene.add( cube );
+
+        // 鼠标控制相机
+        const mouseCtl = () => {
+          // 创建鼠标控制器
+          const controls = new OrbitControls(camera, threejs3D)
+          controls.addEventListener('change', () => {
+            // on change 事件发生的时候重新渲染
+            renderer.render( scene, camera );
+          })
+        }
+        mouseCtl()
+
+        // 渲染动画/周期渲染
+        const animate = () => {
+          // 自动刷新动画
+          requestAnimationFrame( animate );
+
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+
+          renderer.render( scene, camera );
+        }
+        animate();
+      }
+    }
+    
+    // 圆形平面贴图
+    const simple3jsCircleTexture = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+
+        // 创建场景
+        const scene = new THREE.Scene();
+        // 设置相机位置
+        const camera = new THREE.PerspectiveCamera( 75, threejs3D.clientWidth / threejs3D.clientHeight, 0.1, 1000 );
+        camera.position.z = 5;
+        // 创建 WebGL 渲染器
+        const renderer = new THREE.WebGLRenderer();
+        // 设置渲染范围
+        renderer.setSize( threejs3D.clientWidth, threejs3D.clientHeight );
+        threejs3D.appendChild( renderer.domElement );
+
+        // 创建纹理贴图
+        const textureLoader = new THREE.TextureLoader()
+        const texture = textureLoader.load(opengl)
+        // wrapS 定义纹理贴图在水平方向上如何包裹
+        // wrapT 定义纹理贴图在垂直方向上如何包裹
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+        texture.colorSpace = THREE.SRGBColorSpace
+
+        // 创建三维几何体、设置大小
+        const geometry = new THREE.CircleGeometry( 10, 100 );
+        // 创建材质，并设置贴图
+        const material = new THREE.MeshBasicMaterial({ 
+          map: texture,
+          side: THREE.DoubleSide // 两面都设置贴图
+        });
+        const cube = new THREE.Mesh( geometry, material );
+        scene.add( cube );
+
+        // 鼠标控制相机
+        const mouseCtl = () => {
+          // 创建鼠标控制器
+          const controls = new OrbitControls(camera, threejs3D)
+          controls.addEventListener('change', () => {
+            // on change 事件发生的时候重新渲染
+            renderer.render( scene, camera );
+          })
+        }
+        mouseCtl()
+
+        // 渲染动画/周期渲染
+        const animate = () => {
+          // 自动刷新动画
+          requestAnimationFrame( animate );
+
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+
+          renderer.render( scene, camera );
+        }
+        animate();
+      }
+    }
+    
+    // 设置纹理贴图
+    const simple3jsWithTexture = () => {
+      const threejs3D = document.getElementById('threejs3DDom')
+      if (threejs3D) {
+
+        // 创建场景
+        const scene = new THREE.Scene();
+        // 设置相机位置
+        const camera = new THREE.PerspectiveCamera( 75, threejs3D.clientWidth / threejs3D.clientHeight, 0.1, 1000 );
+        camera.position.z = 5;
+        // 创建 WebGL 渲染器
+        const renderer = new THREE.WebGLRenderer();
+        // 设置渲染范围
+        renderer.setSize( threejs3D.clientWidth, threejs3D.clientHeight );
+        threejs3D.appendChild( renderer.domElement );
+
+        // 创建纹理贴图
+        const textureLoader = new THREE.TextureLoader()
+        const texture = textureLoader.load(opengl)
+        // wrapS 定义纹理贴图在水平方向上如何包裹
+        // wrapT 定义纹理贴图在垂直方向上如何包裹
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+        texture.colorSpace = THREE.SRGBColorSpace
+        
+        // 创建三维几何体、设置大小
+        const geometry = new THREE.BoxGeometry( 2, 2, 2 );
+        // 创建材质，并设置贴图
+        const material = new THREE.MeshBasicMaterial( { map: texture } );
+        const cube = new THREE.Mesh( geometry, material );
+        scene.add( cube );
+
+        // 鼠标控制相机
+        const mouseCtl = () => {
+          // 创建鼠标控制器
+          const controls = new OrbitControls(camera, threejs3D)
+          controls.addEventListener('change', () => {
+            // on change 事件发生的时候重新渲染
+            renderer.render( scene, camera );
+          })
+        }
+        mouseCtl()
+
+        // 渲染动画/周期渲染
+        const animate = () => {
+          // 自动刷新动画
+          requestAnimationFrame( animate );
+
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+
+          renderer.render( scene, camera );
+        }
+        animate();
+      }
+    }
+    
     // 简单的 three-js 上手
     const simple3js = () => {
       const threejs3D = document.getElementById('threejs3DDom')
@@ -565,6 +807,7 @@ function App() {
           <span onClick={draw3jsRobotModel}>robot-click</span> &nbsp;
           <span onClick={draw3jsNaruto}>naruto-click</span>&nbsp;
           <span onClick={gltfPeople}>people-click</span>&nbsp;
+          <span onClick={simple3jsCylinderTexture}>simple-click</span>&nbsp;
         </h1>
         <div id={'threejs3DDom'} style={{flex: 1, height: '90%', width: '95%'}}></div>
       </div>
