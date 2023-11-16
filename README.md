@@ -73,18 +73,33 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js' // 无需再次�
 ```
 
 …
+---
 
-**效果图**
+### 效果图
 
 ![three-js-3d-people-demo](./assets/three-js-3d-people-demo.gif)
 
 …
 
-> 还不错的网站：
+> 还不错的网站
 >
-> * [官方的 example](https://threejs.org/examples/)
+> * [three-js 官方 demo](https://threejs.org/examples/)
 > * [暮志未晚博客](https://www.wjceo.com/blog/threejs/)
 
+...
+---
+### 模型事件追踪
+
+> 需要使用到 Raycaster 类，[官方 demo](https://threejs.org/docs/?q=ray#api/zh/core/Raycaster)
+
+**3D 模型非全屏渲染下鼠标位置可能会偏移**
+
+```typescript
+// 如果渲染的 3D 模型非全屏，需要减去一个 offset，否则鼠标追踪位置会偏移
+pointer.x = ((event.clientX - 3dDom.offsetLeft) / 3dDom.clientWidth ) * 2 - 1;
+pointer.y = - ((event.clientY - 3dDom.offsetTop) / 3dDom.clientHeight ) * 2 + 1;
+```
+...
 ---
 
 ### 有意思的项目
@@ -92,6 +107,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js' // 无需再次�
 > [threejs 实现俄罗斯方块](https://github.com/RylanBot/threejs-tetris-react/tree/main)
 
 ## 参考
+
+**echarts 3D**
+* https://echarts.apache.org/examples/zh/index.html#chart-type-globe
 
 **threejs 上手**
 * https://threejs.org/docs/index.html#manual/en/introduction
@@ -101,3 +119,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js' // 无需再次�
 **fbx 模型加载**
 * https://sbcode.net/threejs/loaders-fbx/
 * https://juejin.cn/post/6911217131254185991
+
+**threejs 非全屏渲染鼠标位置偏移**
+* https://zhuanlan.zhihu.com/p/346167554
